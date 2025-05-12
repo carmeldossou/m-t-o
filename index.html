@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Météo Premium ★★★★★</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(59,130,246,0.9) 0%, rgba(139,92,246,0.9) 100%);
+        }
+        .weather-card {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .search-input:focus {
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.4);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="min-h-screen font-sans text-white gradient-bg transition-colors duration-500">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold mb-2 flex items-center justify-center">
+                <i class="fas fa-cloud-sun mr-3 text-yellow-300"></i>
+                Météo<span class="text-yellow-300">Premium</span>
+                <span class="ml-2 text-sm bg-yellow-400 text-gray-900 px-2 py-1 rounded-full">★★★★★</span>
+            </h1>
+            <p class="text-lg opacity-80">Conditions météo en temps réel</p>
+            
+            <div class="mt-8 flex justify-center">
+                <div class="relative w-full max-w-md">
+                    <input type="text" id="search-input" placeholder="Rechercher une ville..." 
+                           class="search-input w-full py-3 px-5 pr-12 rounded-full bg-white bg-opacity-20 focus:outline-none focus:bg-opacity-30 transition">
+                    <button id="search-btn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-yellow-400 text-gray-900 w-10 h-10 rounded-full flex items-center justify-center hover:bg-yellow-300 transition">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Current Weather -->
+            <section class="weather-card rounded-2xl p-6 mb-10 shadow-xl">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="text-center md:text-left mb-6 md:mb-0">
+                        <h2 id="location" class="text-2xl font-bold">Paris, FR</h2>
+                        <p id="date" class="text-sm opacity-80 mt-1">Chargement...</p>
+                        <div class="mt-4">
+                            <span id="temp" class="text-6xl font-bold">--°</span>
+                            <span id="weather-desc" class="block mt-2 text-lg capitalize">--</span>
+                        </div>
+                    </div>
+                    
+                    <div class="relative">
+                        <img id="weather-icon" src="https://openweathermap.org/img/wn/01d@2x.png" alt="Weather icon" 
+                             class="w-32 h-32 animate-float">
+                        <div class="absolute -bottom-5 left-0 right-0 text-center">
+                            <span id="feels-like" class="text-sm opacity-80">Ressenti: --°</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                    <div class="bg-white bg-opacity-10 p-4 rounded-xl text-center">
+                        <i class="fas fa-wind text-xl mb-2"></i>
+                        <p class="text-sm opacity-80">Vent</p>
+                        <p id="wind" class="font-semibold">-- km/h</p>
+                    </div>
+                    <div class="bg-white bg-opacity-10 p-4 rounded-xl text-center">
+                        <i class="fas fa-tint text-xl mb-2"></i>
+                        <p class="text-sm opacity-80">Humidité</p>
+                        <p id="humidity" class="font-semibold">--%</p>
+                    </div>
+                    <div class="bg-white bg-opacity-10 p-4 rounded-xl text-center">
+                        <i class="fas fa-cloud text-xl mb-2"></i>
+                        <p class="text-sm opacity-80">Nuages</p>
+                        <p id="clouds" class="font-semibold">--%</p>
+                    </div>
+                    <div class="bg-white bg-opacity-10 p-4 rounded-xl text-center">
+                        <i class="fas fa-temperature-low text-xl mb-2"></i>
+                        <p class="text-sm opacity-80">Pression</p>
+                        <p id="pressure" class="font-semibold">-- hPa</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Forecast -->
+            <section>
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-calendar-alt mr-2 text-yellow-300"></i>
+                    Prévisions sur 5 jours
+                </h3>
+                <div id="forecast" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <!-- Forecast items will be inserted here by JavaScript -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-sm opacity-70">
+            <p>Application météo développée avec <i class="fas fa-heart text-red-400"></i> - Mise à jour: <span id="update-time"></span></p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // API Configuration
+            const API_KEY = 'fd7dcd57069b560aa2735cae42d2627f';
+            let currentCity = 'Paris';
+            
+            // DOM Elements
+            const elements = {
+                searchInput: document.getElementById('search-input'),
+                searchBtn: document.getElementById('search-btn'),
+                location: document.getElementById('location'),
+                date: document.getElementById('date'),
+                temp: document.getElementById('temp'),
+                weatherDesc: document.getElementById('weather-desc'),
+                weatherIcon: document.getElementById('weather-icon'),
+                feelsLike: document.getElementById('feels-like'),
+                wind: document.getElementById('wind'),
+                humidity: document.getElementById('humidity'),
+                clouds: document.getElementById('clouds'),
+                pressure: document.getElementById('pressure'),
+                forecast: document.getElementById('forecast'),
+                updateTime: document.getElementById('update-time')
+            };
+
+            // Initialize app
+            function init() {
+                updateDateTime();
+                fetchWeather(currentCity);
+                setInterval(updateDateTime, 60000); // Update time every minute
+                
+                // Event listeners
+                elements.searchBtn.addEventListener('click', searchWeather);
+                elements.searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') searchWeather();
+                });
+            }
+
+            // Search weather for a city
+            function searchWeather() {
+                const city = elements.searchInput.value.trim();
+                if (city) {
+                    currentCity = city;
+                    fetchWeather(city);
+                }
+            }
+
+            // Fetch weather data from API
+            async function fetchWeather(city) {
+                try {
+                    // Show loading state
+                    elements.location.textContent = 'Chargement...';
+                    elements.temp.textContent = '--°';
+                    
+                    // Fetch current weather
+                    const currentResponse = await fetch(
+                        `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}&lang=fr`
+                    );
+                    
+                    if (!currentResponse.ok) throw new Error('Ville non trouvée');
+                    const currentData = await currentResponse.json();
+                    
+                    // Fetch forecast
+                    const forecastResponse = await fetch(
+                        `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${API_KEY}&lang=fr`
+                    );
+                    const forecastData = await forecastResponse.json();
+                    
+                    // Update UI
+                    displayCurrentWeather(currentData);
+                    displayForecast(forecastData);
+                    updateBackground(currentData.weather[0].main);
+                    
+                } catch (error) {
+                    alert(`Erreur: ${error.message}`);
+                    console.error('Weather API Error:', error);
+                    elements.location.textContent = 'Erreur de chargement';
+                }
+            }
+
+            // Display current weather data
+            function displayCurrentWeather(data) {
+                elements.location.textContent = `${data.name}, ${data.sys.country}`;
+                elements.temp.textContent = `${Math.round(data.main.temp)}°`;
+                elements.weatherDesc.textContent = data.weather[0].description;
+                elements.feelsLike.textContent = `Ressenti: ${Math.round(data.main.feels_like)}°`;
+                elements.weatherIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+                elements.weatherIcon.alt = data.weather[0].description;
+                elements.wind.textContent = `${Math.round(data.wind.speed * 3.6)} km/h`;
+                elements.humidity.textContent = `${data.main.humidity}%`;
+                elements.clouds.textContent = `${data.clouds.all}%`;
+                elements.pressure.textContent = `${data.main.pressure} hPa`;
+                
+                // Update background based on weather condition
+                updateBackground(data.weather[0].main);
+            }
+
+            // Display 5-day forecast
+            function displayForecast(data) {
+                elements.forecast.innerHTML = '';
+                
+                // Filter to get one entry per day at noon
+                const dailyForecasts = data.list.filter(item => {
+                    const time = new Date(item.dt * 1000).getHours();
+                    return time >= 11 && time <= 15;
+                }).slice(0, 5);
+                
+                dailyForecasts.forEach(day => {
+                    const date = new Date(day.dt * 1000);
+                    const dayName = date.toLocaleDateString('fr-FR', { weekday: 'short' });
+                    const dayNumber = date.getDate();
+                    
+                    const forecastItem = document.createElement('div');
+                    forecastItem.className = 'weather-card rounded-xl p-4 text-center transition hover:scale-105';
+                    forecastItem.innerHTML = `
+                        <div class="font-medium mb-2">${dayName} ${dayNumber}</div>
+                        <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}.png" 
+                             alt="${day.weather[0].description}" 
+                             class="w-16 h-16 mx-auto mb-2">
+                        <div class="text-xl font-bold">${Math.round(day.main.temp)}°</div>
+                        <div class="text-sm opacity-80 capitalize">${day.weather[0].description}</div>
+                        <div class="mt-2 flex justify-center space-x-3 text-xs">
+                            <span><i class="fas fa-temperature-high mr-1"></i> ${Math.round(day.main.temp_max)}°</span>
+                            <span><i class="fas fa-temperature-low mr-1"></i> ${Math.round(day.main.temp_min)}°</span>
+                        </div>
+                    `;
+                    elements.forecast.appendChild(forecastItem);
+                });
+            }
+
+            // Update background based on weather condition
+            function updateBackground(weatherCondition) {
+                const body = document.body;
+                body.classList.remove(
+                    'gradient-bg',
+                    'bg-gradient-to-br',
+                    'from-blue-500', 'to-purple-600',
+                    'from-yellow-400', 'to-orange-500',
+                    'from-gray-400', 'to-gray-600',
+                    'from-blue-400', 'to-blue-700',
+                    'from-pink-500', 'to-red-500',
+                    'from-green-400', 'to-teal-600'
+                );
+                
+                // Add appropriate gradient based on weather
+                switch (weatherCondition.toLowerCase()) {
+                    case 'clear':
+                        body.classList.add('bg-gradient-to-br', 'from-yellow-400', 'to-orange-500');
+                        break;
+                    case 'clouds':
+                        body.classList.add('bg-gradient-to-br', 'from-gray-400', 'to-gray-600');
+                        break;
+                    case 'rain':
+                    case 'drizzle':
+                        body.classList.add('bg-gradient-to-br', 'from-blue-400', 'to-blue-700');
+                        break;
+                    case 'thunderstorm':
+                        body.classList.add('bg-gradient-to-br', 'from-pink-500', 'to-red-500');
+                        break;
+                    case 'snow':
+                        body.classList.add('bg-gradient-to-br', 'from-green-400', 'to-teal-600');
+                        break;
+                    default:
+                        body.classList.add('gradient-bg');
+                }
+            }
+
+            // Update date and time
+            function updateDateTime() {
+                const now = new Date();
+                const options = { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                };
+                elements.date.textContent = now.toLocaleDateString('fr-FR', options);
+                elements.updateTime.textContent = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            }
+
+            // Initialize the application
+            init();
+        });
+    </script>
+</body>
+</html>
